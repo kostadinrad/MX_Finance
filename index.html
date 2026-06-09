@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Performance & Simulation Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Custom number input look to keep tables compact */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <div class="border-b border-slate-200 pb-5 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Financial Model & Live Simulation</h1>
+                <p class="text-sm text-slate-500 mt-1">Real-time forecasting dashboard for tracking monthly EBITDA and Breakeven metrics.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Currency: EUR (€)</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-6">
+                <div class="text-sm font-medium text-slate-500">March 2026 EBITDA</div>
+                <div id="card_ebitda_0" class="text-2xl font-bold mt-2 text-red-600">-€44,852.14</div>
+                <div class="mt-2 text-xs text-slate-400">GGR: <span id="card_ggr_0" class="font-medium text-slate-600">€262,967.71</span></div>
+            </div>
+            <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-6">
+                <div class="text-sm font-medium text-slate-500">April 2026 EBITDA</div>
+                <div id="card_ebitda_1" class="text-2xl font-bold mt-2 text-red-600">-€66,058.49</div>
+                <div class="mt-2 text-xs text-slate-400">GGR: <span id="card_ggr_1" class="font-medium text-slate-600">€243,296.01</span></div>
+            </div>
+            <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-6">
+                <div class="text-sm font-medium text-slate-500">May 2026 EBITDA</div>
+                <div id="card_ebitda_2" class="text-2xl font-bold mt-2 text-red-600">-€110,071.43</div>
+                <div class="mt-2 text-xs text-slate-400">GGR: <span id="card_ggr_2" class="font-medium text-slate-600">€146,510.42</span></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white shadow-xs border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+                        <h2 class="text-lg font-semibold text-slate-900">Monthly Expense & Margin Ledger</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Edit any blue numeric box below to watch the metrics compute dynamically.</p>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100/70 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <th class="p-4 min-w-[200px]">Metric / Expense Component</th>
+                                    <th class="p-4 text-center border-l border-slate-200" colspan="2">2026-03-01</th>
+                                    <th class="p-4 text-center border-l border-slate-200" colspan="2">2026-04-01</th>
+                                    <th class="p-4 text-center border-l border-slate-200" colspan="2">2026-05-01</th>
+                                </tr>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 font-bold uppercase tracking-wide">
+                                    <th></th>
+                                    <th class="p-2 text-right border-l border-slate-200 w-28">Amount (€)</th>
+                                    <th class="p-2 text-right w-16">% GGR</th>
+                                    <th class="p-2 text-right border-l border-slate-200 w-28">Amount (€)</th>
+                                    <th class="p-2 text-right w-16">% GGR</th>
+                                    <th class="p-2 text-right border-l border-slate-200 w-28">Amount (€)</th>
+                                    <th class="p-2 text-right w-16">% GGR</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm divide-y divide-slate-100">
+                                
+                                <tr class="bg-blue-50/40 font-semibold">
+                                    <td class="p-3 text-slate-900 font-bold">Gross Gaming Revenue (GGR)</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="ggr_0" value="262967.71" step="any" oninput="calculateModel()" class="w-full text-right bg-white border border-blue-200 rounded px-2 py-1 text-blue-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"></td>
+                                    <td class="p-3 text-right text-slate-400">100%</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="ggr_1" value="243296.01" step="any" oninput="calculateModel()" class="w-full text-right bg-white border border-blue-200 rounded px-2 py-1 text-blue-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"></td>
+                                    <td class="p-3 text-right text-slate-400">100%</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="ggr_2" value="146510.42" step="any" oninput="calculateModel()" class="w-full text-right bg-white border border-blue-200 rounded px-2 py-1 text-blue-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"></td>
+                                    <td class="p-3 text-right text-slate-400">100%</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Bonus Achieve</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="bonus_0" value="69769.45" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="bonus_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="bonus_1" value="49353.59" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="bonus_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="bonus_2" value="59513.56" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="bonus_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+
+                                <tr class="bg-slate-50/60 font-medium text-xs text-slate-500">
+                                    <td class="p-2 pl-4" colspan="7">% Based Variables</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Taxes</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="taxes_0" value="21905.60" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="taxes_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="taxes_1" value="22242.38" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="taxes_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="taxes_2" value="0.00" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="taxes_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Providers (direct deals)</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="providers_0" value="531.30" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="providers_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="providers_1" value="0.00" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="providers_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="providers_2" value="0.00" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="providers_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Payment processing</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="processing_0" value="8953.47" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="processing_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="processing_1" value="10965.31" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="processing_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="processing_2" value="2135.48" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="processing_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Platform+Aggregation</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="platform_0" value="31556.12" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="platform_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="platform_1" value="29195.52" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="platform_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="platform_2" value="17581.25" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="platform_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr class="bg-slate-50 font-medium italic">
+                                    <td class="p-3 pl-4 text-slate-700">Subtotal % Variable Expenses</td>
+                                    <td id="pct_total_0" class="p-3 text-right border-l border-slate-200 font-semibold">-</td>
+                                    <td id="pct_rate_0" class="p-3 text-right text-slate-600 text-xs font-semibold">-</td>
+                                    <td id="pct_total_1" class="p-3 text-right border-l border-slate-200 font-semibold">-</td>
+                                    <td id="pct_rate_1" class="p-3 text-right text-slate-600 text-xs font-semibold">-</td>
+                                    <td id="pct_total_2" class="p-3 text-right border-l border-slate-200 font-semibold">-</td>
+                                    <td id="pct_rate_2" class="p-3 text-right text-slate-600 text-xs font-semibold">-</td>
+                                </tr>
+
+                                <tr class="bg-slate-50/60 font-medium text-xs text-slate-500">
+                                    <td class="p-2 pl-4" colspan="7">Fixed Operating Costs</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Payroll</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="payroll_0" value="76409.52" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="payroll_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="payroll_1" value="48230.73" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="payroll_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="payroll_2" value="64207.43" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="payroll_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Office</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="office_0" value="10317.81" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="office_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="office_1" value="11248.01" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="office_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="office_2" value="12634.02" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="office_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Marketing</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="marketing_0" value="82355.81" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="marketing_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="marketing_1" value="126419.11" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="marketing_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="marketing_2" value="84932.50" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="marketing_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Legal</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="legal_0" value="679.53" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="legal_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="legal_1" value="0.00" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="legal_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="legal_2" value="12416.59" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="legal_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 pl-6 text-slate-600">Accounting</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="accounting_0" value="5341.25" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="accounting_pct_0" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="accounting_1" value="11699.85" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="accounting_pct_1" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                    <td class="p-2 border-l border-slate-200"><input type="number" id="accounting_2" value="3161.01" step="any" oninput="calculateModel()" class="w-full text-right border border-slate-200 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"></td>
+                                    <td id="accounting_pct_2" class="p-3 text-right text-slate-500 text-xs">-</td>
+                                </tr>
+                                <tr class="bg-slate-50 font-medium italic">
+                                    <td class="p-3 pl-4 text-slate-700">Subtotal Fixed Expenses</td>
+                                    <td id="fixed_total_0" class="p-3 text-right border-l border-slate-200 font-semibold">-</td>
+                                    <td id="fixed_rate_0" class="p-3 text-right text-slate-600 text-xs font-semibold">-</td>
+                                    <td id="fixed_total_1" class="p-3 text-right border-l border-slate-200 font-semibold">-</td>
+                                    <td id="fixed_rate_1" class="p-3 text-right text-slate-600 text-xs font-semibold">-</td>
+                                    <td id="fixed_total_2" class="p-3 text-right border-l border-slate-200 font-semibold">-</td>
+                                    <td id="fixed_rate_2" class="p-3 text-right text-slate-600 text-xs font-semibold">-</td>
+                                </tr>
+
+                                <tr class="bg-slate-100 font-bold border-t-2 border-slate-300">
+                                    <td class="p-3 text-slate-900">All Expenses (EUR)</td>
+                                    <td id="all_expenses_0" class="p-3 text-right border-l border-slate-200">-</td>
+                                    <td id="all_expenses_rate_0" class="p-3 text-right text-slate-600 text-xs">-</td>
+                                    <td id="all_expenses_1" class="p-3 text-right border-l border-slate-200">-</td>
+                                    <td id="all_expenses_rate_1" class="p-3 text-right text-slate-600 text-xs">-</td>
+                                    <td id="all_expenses_2" class="p-3 text-right border-l border-slate-200">-</td>
+                                    <td id="all_expenses_rate_2" class="p-3 text-right text-slate-600 text-xs">-</td>
+                                </tr>
+                                <tr class="font-bold">
+                                    <td class="p-3 text-slate-900">EBITDA (EUR)</td>
+                                    <td id="ebitda_0" class="p-3 text-right border-l border-slate-200"></td>
+                                    <td id="ebitda_pct_0" class="p-3 text-right text-xs"></td>
+                                    <td id="ebitda_1" class="p-3 text-right border-l border-slate-200"></td>
+                                    <td id="ebitda_pct_1" class="p-3 text-right text-xs"></td>
+                                    <td id="ebitda_2" class="p-3 text-right border-l border-slate-200"></td>
+                                    <td id="ebitda_pct_2" class="p-3 text-right text-xs"></td>
+                                </tr>
+                                <tr class="bg-emerald-50/50 text-emerald-900 font-semibold">
+                                    <td class="p-3 text-emerald-900 font-bold">Breakeven GGR Target</td>
+                                    <td id="breakeven_ggr_0" class="p-3 text-right border-l border-slate-200">-</td>
+                                    <td class="p-3 text-right text-[10px] uppercase text-emerald-600">Req €</td>
+                                    <td id="breakeven_ggr_1" class="p-3 text-right border-l border-slate-200">-</td>
+                                    <td class="p-3 text-right text-[10px] uppercase text-emerald-600">Req €</td>
+                                    <td id="breakeven_ggr_2" class="p-3 text-right border-l border-slate-200">-</td>
+                                    <td class="p-3 text-right text-[10px] uppercase text-emerald-600">Req €</td>
+                                </tr>
+                                <tr class="text-slate-700 bg-slate-50 text-xs font-medium">
+                                    <td class="p-3 pl-6">Additional GGR Needed for €0 EBITDA</td>
+                                    <td id="ggr_needed_0" class="p-3 text-right border-l border-slate-200 italic font-mono text-slate-600">-</td>
+                                    <td></td>
+                                    <td id="ggr_needed_1" class="p-3 text-right border-l border-slate-200 italic font-mono text-slate-600">-</td>
+                                    <td></td>
+                                    <td id="ggr_needed_2" class="p-3 text-right border-l border-slate-200 italic font-mono text-slate-600">-</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-slate-900 text-white rounded-xl shadow-lg border border-slate-800 overflow-hidden">
+                    <div class="p-6 bg-slate-800/80 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 bg-blue-500/10 text-blue-400 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </span>
+                            <h2 class="text-lg font-bold tracking-tight">World Cup Simulation Engine</h2>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Simulate spikes in marketing and bonuses to instantly calculate necessary GGR targets.</p>
+                    </div>
+
+                    <div class="p-6 space-y-5">
+                        <div>
+                            <label for="sim_baseline" class="block text-xs font-semibold uppercase text-slate-400 tracking-wider mb-2">Select Baseline Month</label>
+                            <select id="sim_baseline" onchange="calculateSimulation()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <option value="0">March 2026 Structure</option>
+                                <option value="1" selected>April 2026 Structure (Representative)</option>
+                                <option value="2">May 2026 Structure</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold uppercase text-slate-400 tracking-wider mb-2">
+                                <label for="sim_add_marketing">Additional Marketing Spend</label>
+                                <span id="val_marketing" class="text-blue-400 font-mono">€100,000</span>
+                            </div>
+                            <input type="range" id="sim_add_marketing" min="0" max="300000" step="5000" value="100000" oninput="syncSliderVal('sim_add_marketing', 'val_marketing'); calculateSimulation();" class="w-full accent-blue-500 h-2 bg-slate-700 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                                <span>€0</span>
+                                <span>€300k</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold uppercase text-slate-400 tracking-wider mb-2">
+                                <label for="sim_add_bonus">Additional Bonus Achieve</label>
+                                <span id="val_bonus" class="text-blue-400 font-mono">€50,000</span>
+                            </div>
+                            <input type="range" id="sim_add_bonus" min="0" max="150000" step="2500" value="50000" oninput="syncSliderVal('sim_add_bonus', 'val_bonus'); calculateSimulation();" class="w-full accent-blue-500 h-2 bg-slate-700 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                                <span>€0</span>
+                                <span>€150k</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 bg-slate-950/80 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-center text-center">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Simulated Required GGR</div>
+                            <div id="sim_result_ggr" class="text-3xl font-extrabold text-emerald-400 tracking-tight">€533,888.95</div>
+                            <div class="text-[10px] text-slate-500 mt-2 max-w-[220px]">Required topline gaming volume to achieve a net $\text{EBITDA} = 0$ with chosen additions.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-5 text-xs text-slate-500 space-y-2">
+                    <h3 class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Mathematical Formula Rules Applied</h3>
+                    <p>$\text{Variable \% Expense Rate} = \frac{\sum \text{Variable Expenses}}{\text{GGR}}$</p>
+                    <p>$\text{Breakeven GGR} = \frac{\text{Total Fixed Costs} + \text{Bonus Achieve}}{1 - \text{Variable \% Expense Rate}}$</p>
+                    <p>The simulation scales the variable expenses dynamically by the baseline percentage rate, holding fixed layers constant.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const formatCurrency = (val) => {
+            return new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(val);
+        };
+
+        const formatPercent = (val) => {
+            return new Intl.NumberFormat('en-IE', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(val);
+        };
+
+        function syncSliderVal(sliderId, displayId) {
+            const val = parseFloat(document.getElementById(sliderId).value);
+            document.getElementById(displayId).textContent = formatCurrency(val);
+        }
+
+        function calculateModel() {
+            // Process calculations for the 3 individual months
+            for (let i = 0; i < 3; i++) {
+                const ggr = parseFloat(document.getElementById(`ggr_${i}`).value) || 0;
+                const bonus = parseFloat(document.getElementById(`bonus_${i}`).value) || 0;
+                
+                // Variable rows
+                const taxes = parseFloat(document.getElementById(`taxes_${i}`).value) || 0;
+                const providers = parseFloat(document.getElementById(`providers_${i}`).value) || 0;
+                const processing = parseFloat(document.getElementById(`processing_${i}`).value) || 0;
+                const platform = parseFloat(document.getElementById(`platform_${i}`).value) || 0;
+                
+                // Fixed rows
+                const payroll = parseFloat(document.getElementById(`payroll_${i}`).value) || 0;
+                const office = parseFloat(document.getElementById(`office_${i}`).value) || 0;
+                const marketing = parseFloat(document.getElementById(`marketing_${i}`).value) || 0;
+                const legal = parseFloat(document.getElementById(`legal_${i}`).value) || 0;
+                const accounting = parseFloat(document.getElementById(`accounting_${i}`).value) || 0;
+
+                // Sync item percentages of GGR
+                if (ggr > 0) {
+                    document.getElementById(`bonus_pct_${i}`).textContent = formatPercent(bonus / ggr);
+                    document.getElementById(`taxes_pct_${i}`).textContent = formatPercent(taxes / ggr);
+                    document.getElementById(`providers_pct_${i}`).textContent = formatPercent(providers / ggr);
+                    document.getElementById(`processing_pct_${i}`).textContent = formatPercent(processing / ggr);
+                    document.getElementById(`platform_pct_${i}`).textContent = formatPercent(platform / ggr);
+                    
+                    document.getElementById(`payroll_pct_${i}`).textContent = formatPercent(payroll / ggr);
+                    document.getElementById(`office_pct_${i}`).textContent = formatPercent(office / ggr);
+                    document.getElementById(`marketing_pct_${i}`).textContent = formatPercent(marketing / ggr);
+                    document.getElementById(`legal_pct_${i}`).textContent = formatPercent(legal / ggr);
+                    document.getElementById(`accounting_pct_${i}`).textContent = formatPercent(accounting / ggr);
+                } else {
+                    const elements = [`bonus_pct_`, `taxes_pct_`, `providers_pct_`, `processing_pct_`, `platform_pct_`, `payroll_pct_`, `office_pct_`, `marketing_pct_`, `legal_pct_`, `accounting_pct_`];
+                    elements.forEach(id => document.getElementById(id + i).textContent = '0.0%');
+                }
+                
+                // Aggregate Variable
+                const pctExpensesTotal = taxes + providers + processing + platform;
+                const pctExpensesRate = ggr > 0 ? (pctExpensesTotal / ggr) : 0;
+                document.getElementById(`pct_total_${i}`).textContent = formatCurrency(pctExpensesTotal);
+                document.getElementById(`pct_rate_${i}`).textContent = formatPercent(pctExpensesRate);
+                
+                // Aggregate Fixed
+                const fixedExpensesTotal = payroll + office + marketing + legal + accounting;
+                const fixedRate = ggr > 0 ? (fixedExpensesTotal / ggr) : 0;
+                document.getElementById(`fixed_total_${i}`).textContent = formatCurrency(fixedExpensesTotal);
+                document.getElementById(`fixed_rate_${i}`).textContent = formatPercent(fixedRate);
+                
+                // Performance Row Metrics
+                const allExpenses = bonus + pctExpensesTotal + fixedExpensesTotal;
+                const allExpensesRate = ggr > 0 ? (allExpenses / ggr) : 0;
+                document.getElementById(`all_expenses_${i}`).textContent = formatCurrency(allExpenses);
+                document.getElementById(`all_expenses_rate_${i}`).textContent = formatPercent(allExpensesRate);
+                
+                const ebitda = ggr - allExpenses;
+                const ebitdaPct = ggr > 0 ? (ebitda / ggr) : 0;
+                
+                const ebitdaEl = document.getElementById(`ebitda_${i}`);
+                const ebitdaPctEl = document.getElementById(`ebitda_pct_${i}`);
+                ebitdaEl.textContent = formatCurrency(ebitda);
+                ebitdaPctEl.textContent = formatPercent(ebitdaPct);
+                
+                if (ebitda < 0) {
+                    ebitdaEl.className = "p-3 text-right border-l border-slate-200 text-red-600 bg-red-50/50 font-bold";
+                    ebitdaPctEl.className = "p-3 text-right text-xs text-red-500 bg-red-50/50 font-bold";
+                    document.getElementById(`card_ebitda_${i}`).className = "text-2xl font-bold mt-2 text-red-600";
+                } else {
+                    ebitdaEl.className = "p-3 text-right border-l border-slate-200 text-emerald-600 bg-emerald-50/50 font-bold";
+                    ebitdaPctEl.className = "p-3 text-right text-xs text-emerald-500 bg-emerald-50/50 font-bold";
+                    document.getElementById(`card_ebitda_${i}`).className = "text-2xl font-bold mt-2 text-emerald-600";
+                }
+                
+                // Breakeven Math Layer
+                const denominator = 1 - pctExpensesRate;
+                let breakevenGgr = 0;
+                if (denominator > 0) {
+                    breakevenGgr = (fixedExpensesTotal + bonus) / denominator;
+                }
+                document.getElementById(`breakeven_ggr_${i}`).textContent = formatCurrency(breakevenGgr);
+                
+                const ggrNeeded = breakevenGgr - ggr;
+                document.getElementById(`ggr_needed_${i}`).textContent = ggrNeeded > 0 ? `+${formatCurrency(ggrNeeded)}` : formatCurrency(ggrNeeded);
+
+                // Update Card Labels
+                document.getElementById(`card_ggr_${i}`).textContent = formatCurrency(ggr);
+                document.getElementById(`card_ebitda_${i}`).textContent = formatCurrency(ebitda);
+            }
+
+            // Tie changes directly through into the live side simulator widget view
+            calculateSimulation();
+        }
+
+        function calculateSimulation() {
+            const baselineIdx = parseInt(document.getElementById('sim_baseline').value);
+            
+            // Re-read current inputs from the chosen table column to establish baseline logic
+            const ggr = parseFloat(document.getElementById(`ggr_${baselineIdx}`).value) || 0;
+            const taxes = parseFloat(document.getElementById(`taxes_${baselineIdx}`).value) || 0;
+            const providers = parseFloat(document.getElementById(`providers_${baselineIdx}`).value) || 0;
+            const processing = parseFloat(document.getElementById(`processing_${baselineIdx}`).value) || 0;
+            const platform = parseFloat(document.getElementById(`platform_${baselineIdx}`).value) || 0;
+            
+            const pctExpensesTotal = taxes + providers + processing + platform;
+            const pctExpensesRate = ggr > 0 ? (pctExpensesTotal / ggr) : 0;
+            
+            const bonus = parseFloat(document.getElementById(`bonus_${baselineIdx}`).value) || 0;
+            
+            const payroll = parseFloat(document.getElementById(`payroll_${baselineIdx}`).value) || 0;
+            const office = parseFloat(document.getElementById(`office_${baselineIdx}`).value) || 0;
+            const marketing = parseFloat(document.getElementById(`marketing_${baselineIdx}`).value) || 0;
+            const legal = parseFloat(document.getElementById(`legal_${baselineIdx}`).value) || 0;
+            const accounting = parseFloat(document.getElementById(`accounting_${baselineIdx}`).value) || 0;
+            
+            const fixedExpensesTotal = payroll + office + marketing + legal + accounting;
+            
+            // Read simulator parameter adjustments
+            const addMarketing = parseFloat(document.getElementById('sim_add_marketing').value) || 0;
+            const addBonus = parseFloat(document.getElementById('sim_add_bonus').value) || 0;
+            
+            // Compute Simulated target volume requirement
+            const denominator = 1 - pctExpensesRate;
+            let simulatedGgrNeeded = 0;
+            if (denominator > 0) {
+                simulatedGgrNeeded = (fixedExpensesTotal + bonus + addMarketing + addBonus) / denominator;
+            }
+            
+            document.getElementById('sim_result_ggr').textContent = formatCurrency(simulatedGgrNeeded);
+        }
+
+        // Initialize equations on browser window paint step
+        window.onload = () => {
+            calculateModel();
+        };
+    </script>
+</body>
+</html>
